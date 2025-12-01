@@ -1,50 +1,77 @@
 import json
-from datetime import datetime
 
-with open("credits_loan.json", "r") as f:
-    data = json.load(f)
+def load_users():
+    with open("credentials.json", "r") as file:
+        return json.load(file)["users"]
 
-today = datetime.today()
+def login():
+    print("----- LOGIN -----")
+    username = input("Username: ")
+    password = input("Password: ")
 
-results = []
+    users = load_users()
 
-for customer in data["customer_accounts"]:
-    customer_id = customer["customer_id"]
+    for user in users:
+        if user["username"] == username and user["password"] == password:
+            print("\nLogin successful!\n")
+            return True
 
-    late_count = 0
-    for card in customer.get("credit_cards", []):
-        for cycle in card.get("billing_cycles", []):
-            payment_date = datetime.strptime(cycle["payment_date"], "%Y-%m-%d")
-            cycle_end = datetime.strptime(cycle["cycle_end"], "%Y-%m-%d")
+    print("\nInvalid username or password.\n")
+    return False
 
-            if payment_date > cycle_end or cycle["amount_paid"] < cycle["amount_due"]:
-                late_count += 1
+def credit_decision(customer):
+    income = customer["avg_monthly_income"]
+    spend = customer["avg_monthly_spend"]
+    late = customer["late_payment_count"]
+    util = customer["credit_utilization_ratio"]
+    age = customer["account_age_months"]
+    suspicious = customer["suspicious_transaction_flags"]
+    pattern = customer["transaction_pattern"]
 
-    loans = customer.get("loans", [])
-    active_loans = sum(1 for loan in loans if loan["outstanding_amount"] > 0)
+    income_spend_ratio = income / spend if spend > 0 else 0
 
-    utilization_values = []
-    for card in customer.get("credit_cards", []):
-        limit = card["credit_limit"]
-        balance = card["current_balance"]
-        utilization = (balance / limit) * 100
-        utilization_values.append(utilization)
+    if (
+        late > 3 or
+        util > 70 or
+        suspicious > 0 or
+        income < spend or
+        age < 3 or
+        pattern["anomaly_flags"] > 0
+    ):
+        return "REJECT"
 
-    credit_utilization_ratio = (
-        sum(utilization_values) / len(utilization_values)
-        if utilization_values else 0
-    )
+    if (
+        income_spend_ratio >= 1.5 and
+        late <= 1 and
+        util <= 40 and
+        age >= 12 and
+        suspicious == 0 and
+        pattern["incoming_to_outgoing_ratio"] >= 1.2
+    ):
+        return "APPROVE"
 
-    created = datetime.strptime(customer["account_creation_date"], "%Y-%m-%d")
+    if (
+        1.1 <= income_spend_ratio < 1.5 and
+        late <= 2 and
+        util <= 60 and
+        suspicious == 0
+    ):
+        return "REVIEW"
 
-    account_age_months = (today.year - created.year) * 12 + (today.month - created.month)
+    return "REJECT"
 
-    results.append({
-        "customer_id": customer_id,
-        "late_payment_count": late_count,
-        "current_loans": active_loans,
-        "credit_utilization_ratio": round(credit_utilization_ratio, 2),
-        "account_age_months": account_age_months
-    })
 
-print(json.dumps(results, indent=4))
+def load_customers():
+    with open("customer_data.json", "r") as file:
+        return json.load(file)["customers"]
+
+
+if not login():
+    exit()
+
+customers = load_customers()
+
+print("---- Credit Decision Results ----\n")
+for cust in customers:
+    decision = credit_decision(cust)
+    print(f"Customer {cust['customer_id']} → {decision}")

@@ -1,12 +1,8 @@
 import json 
 import input
-<<<<<<< HEAD
-
-=======
 from datetime import datetime
 
 import math
->>>>>>> cfa6d09881511a1684a1db294b560828d5f118c4
 with open("customer_data.json") as f:
     statement = json.load(f)
 
@@ -32,14 +28,7 @@ def calculate(statement):
 
     total_transaction_amount =  month_spend+ month_income 
     avg_spend_ratio = (avg_month_spend/avg_month_income) * 100
-<<<<<<< HEAD
     avg_transaction_amount= total_transaction_amount / (income+spend)
-    for trans in statement["transactions"]:
-        mean_diff = avg_transaction_amount - trans["amount"]
-
-    print(avg_month_income,avg_month_spend,avg_spend_ratio,avg_transaction_amount,mean_diff)
-=======
-    avg_transaction_amount= total_transacrtion_amount / (income+spend)
     for trans in statement["transactions"]:
         mean_diff = avg_transaction_amount - trans["amount"]
 
@@ -102,6 +91,5 @@ def calculate(statement):
         dat = {"avg_monthly_income":avg_month_income, "avg_monthly_spend":avg_month_spend, "transaction_pattern":{"transaction_count":no_of_transaction, "avg_transaction_amount":avg_transaction_amount,
                 "spend_ratio":avg_spend_ratio, "anamoly_flags":anamoly}, "late_payment_counts":late_count, "current_loans":active_loans,"credit_utilization_ratio":credit_utilization_ratio, "account_age_months":account_age_months}
         json.dump(dat,w,indent=4)
->>>>>>> cfa6d09881511a1684a1db294b560828d5f118c4
 
 calculate(statement)
