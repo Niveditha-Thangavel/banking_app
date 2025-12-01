@@ -1,5 +1,0 @@
-≥ 700 -> APPROVED
-
-600–699 -> REVIEW
-
-< 600 -> REJECTED
