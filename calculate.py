@@ -1,16 +1,13 @@
 import json 
 import input
 from datetime import datetime
-
 import math
-with open("customer_data.json") as f:
-    statement = json.load(f)
 
 
-with open("credits_loan.json", "r") as f:
-    data = json.load(f)
 
-def calculate(statement):
+
+
+def calculate(statement,data):
     income = 0
     spend = 0
     month_spend = 0
@@ -91,5 +88,4 @@ def calculate(statement):
         dat = {"avg_monthly_income":avg_month_income, "avg_monthly_spend":avg_month_spend, "transaction_pattern":{"transaction_count":no_of_transaction, "avg_transaction_amount":avg_transaction_amount,
                 "spend_ratio":avg_spend_ratio, "anamoly_flags":anamoly}, "late_payment_counts":late_count, "current_loans":active_loans,"credit_utilization_ratio":credit_utilization_ratio, "account_age_months":account_age_months}
         json.dump(dat,w,indent=4)
-
-calculate(statement)
+        print(dat)
