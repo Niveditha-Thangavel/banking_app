@@ -1,0 +1,3 @@
+[submodule "banking_llm"]
+	path = banking_llm
+	url = https://github.com/Niveditha-Thangavel/bank_agent_llm.git
