@@ -1,3 +1,5 @@
+#This is a sample file to demonstrate the credit scoring model
+
 import json
 
 def load_users():
