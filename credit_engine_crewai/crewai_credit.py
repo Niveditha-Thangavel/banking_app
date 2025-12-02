@@ -43,43 +43,64 @@ llm = LLM(
     api_key=os.getenv("HUGGINGFACE_API_KEY")
 )
 
-def create_agent():
-    agent = Agent(
-        role="Bank credit decision expert",
-        goal="Determine the final credit approval result from customer data.",
-        backstory="Processes statements, loans, spending, credit behavior and produces a final credit decision.",
-        tools=[
-            FetchBankStatementTool(),
-            CalculateMetricsTool(),
-            RunCreditScoreTool()
-        ],
+def create_agents():
+    fetch_agent =  Agent(
+        role="Fetch Bank Statement Agent",
+        goal="Fetch the bank statement for a given customer_id.",
+        backstory="Responsible for fetching customer bank statements.",
+        tools=[FetchBankStatementTool()],
         llm=llm
     )
-    return agent
 
-def create_task(customer_id):
-    credit_agent = create_agent()
-    task = Task(
-        description=f"""
-        The user provides customer_id = "{customer_id}". 
-        Follow these steps:
-        1. Fetch bank statement using FetchBankStatement with the EXACT customer_id above.
-        2. Calculate credit metrics using CalculateCreditMetrics.
-        3. Run the final credit scoring using RunCreditScore.
-        
-        Return ONLY the final JSON result.
-        """,
-        agent=credit_agent,
-        expected_output="A JSON credit decision."
+    metrics_agent = Agent(
+        role="Credit Metrics Agent",
+        goal="Calculate metrics from bank statement data.",
+        backstory="Responsible for analyzing transactions and loans.",
+        tools=[CalculateMetricsTool()],
+        llm=llm
     )
-    return task
+
+    scoring_agent = Agent(
+        role="Credit Scoring Agent",
+        goal="Generate final credit decision using calculated metrics.",
+        backstory="Responsible for computing credit score and approval.",
+        tools=[RunCreditScoreTool()],
+        llm=llm
+    )
+
+    return fetch_agent, metrics_agent, scoring_agent
+
+def create_tasks(customer_id):
+    fetch_agent, metrics_agent, scoring_agent = create_agents()
+    
+    fetch_task = Task(
+        description=f"Fetch bank statement for customer_id '{customer_id}'",
+        agent=fetch_agent,
+        expected_output="Bank statement JSON"
+    )
+
+    metrics_task = Task(
+        description="Calculate metrics from fetched bank statement",
+        agent=metrics_agent,
+        expected_output="Calculated metrics JSON"
+    )
+
+    scoring_task = Task(
+        description="Generate final credit decision",
+        agent=scoring_agent,
+        expected_output="Final credit decision JSON"
+    )
+
+    return fetch_task, metrics_task, scoring_task
 
 
 user_id = input("Enter customer ID: ")
+fetch_agent, metrics_agent, scoring_agent = create_agents()
+fetch_task, metrics_task, scoring_task = create_tasks(user_id)
 
 crew = Crew(
-    agents=[create_agent()],
-    tasks=[create_task(user_id)],
+    agents=[fetch_agent, metrics_agent, scoring_agent],
+    tasks=[fetch_task, metrics_task, scoring_task],
     verbose=True
 )
 result = crew.kickoff()
