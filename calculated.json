@@ -1,11 +1,11 @@
 {
-    "avg_monthly_income": 3000.0,
-    "avg_monthly_spend": 675.0,
+    "avg_monthly_income": 19000.0,
+    "avg_monthly_spend": 1000.0,
     "transaction_pattern": {
         "transaction_count": 8,
-        "avg_transaction_amount": 1256.25,
-        "spend_ratio": 22.5,
-        "anamoly_flags": 1
+        "avg_transaction_amount": 5500.0,
+        "spend_ratio": 5.263157894736842,
+        "anamoly_flags": 2
     },
     "late_payment_counts": 2,
     "current_loans": 2,

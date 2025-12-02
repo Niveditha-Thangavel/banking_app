@@ -49,6 +49,7 @@ def create_agents():
         goal="Fetch the bank statement for a given customer_id.",
         backstory="Responsible for fetching customer bank statements.",
         tools=[FetchBankStatementTool()],
+        verbose = True,
         llm=llm
     )
 
@@ -57,6 +58,7 @@ def create_agents():
         goal="Calculate metrics from bank statement data.",
         backstory="Responsible for analyzing transactions and loans.",
         tools=[CalculateMetricsTool()],
+        verbose = True,
         llm=llm
     )
 
@@ -65,6 +67,7 @@ def create_agents():
         goal="Generate final credit decision using calculated metrics.",
         backstory="Responsible for computing credit score and approval.",
         tools=[RunCreditScoreTool()],
+        verbose = True,
         llm=llm
     )
 
@@ -86,9 +89,9 @@ def create_tasks(customer_id):
     )
 
     scoring_task = Task(
-        description="Generate final credit decision",
+        description="Generate only the final credit decision with decision, score and reasons",
         agent=scoring_agent,
-        expected_output="Final credit decision JSON"
+        expected_output="Final credit decision"
     )
 
     return fetch_task, metrics_task, scoring_task
