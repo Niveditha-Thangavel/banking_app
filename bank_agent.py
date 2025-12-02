@@ -111,8 +111,7 @@ def create_task(customer_id):
 
 
 
-
-customer_id = "C101"
+customer_id = input("Enter the customer id: ")
 input_agent, calculator_agent, approval_agent = create_agents(customer_id)
 input_agent_task, calculator_agent_task, approval_agent_task = create_task(customer_id)
 
@@ -124,6 +123,3 @@ crew = Crew(
 )
 
 crew.kickoff()
-
-
-
